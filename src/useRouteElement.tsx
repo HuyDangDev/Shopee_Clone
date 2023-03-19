@@ -1,0 +1,67 @@
+import { Navigate, useRoutes, Outlet } from 'react-router-dom'
+import { MainLayout, RegisterLayout } from 'src/layouts'
+import { Register, ProductList, Login, Profile } from 'src/pages'
+import { useContext } from 'react'
+import { AppContext } from './contexts'
+import { PATH } from './constants'
+
+function ProtectedRoute() {
+  const { isAuthenticated } = useContext(AppContext)
+  return isAuthenticated ? <Outlet /> : <Navigate to={PATH.login} />
+}
+
+function RejectedRoute() {
+  const { isAuthenticated } = useContext(AppContext)
+  return !isAuthenticated ? <Outlet /> : <Navigate to={PATH.home} />
+}
+
+export default function useRouteElement() {
+  const routeElements = useRoutes([
+    {
+      path: PATH.home,
+      index: true,
+      element: (
+        <MainLayout>
+          <ProductList />
+        </MainLayout>
+      )
+    },
+    {
+      path: '',
+      element: <ProtectedRoute />,
+      children: [
+        {
+          path: PATH.profile,
+          element: (
+            <MainLayout>
+              <Profile />
+            </MainLayout>
+          )
+        }
+      ]
+    },
+    {
+      path: '',
+      element: <RejectedRoute />,
+      children: [
+        {
+          path: PATH.login,
+          element: (
+            <RegisterLayout>
+              <Login />
+            </RegisterLayout>
+          )
+        },
+        {
+          path: PATH.register,
+          element: (
+            <RegisterLayout>
+              <Register />
+            </RegisterLayout>
+          )
+        }
+      ]
+    }
+  ])
+  return routeElements
+}
