@@ -1,12 +1,26 @@
-import { Link } from 'react-router-dom'
+import classNames from 'classnames'
+import { createSearchParams, Link } from 'react-router-dom'
 import { Button, Input } from 'src/components'
 import { PATH } from 'src/constants'
+import { Category } from 'src/types'
+import { QueryConfig } from '../ProductList'
 
-export const AsideFilter = () => {
+interface AsideFilterProps {
+  categories: Category[]
+  queryConfig: QueryConfig
+}
+
+export const AsideFilter = ({ categories, queryConfig }: AsideFilterProps) => {
+  const { category } = queryConfig
   return (
     <div className='py-4'>
-      <Link to={PATH.home} className='flex items-center font-bold'>
-        <svg viewBox='0 0 12 10' className='w-3 h-4 mr-3 fill-current'>
+      <Link
+        to={PATH.home}
+        className={classNames('flex items-center font-bold', {
+          'text-orange': !category
+        })}
+      >
+        <svg viewBox='0 0 12 10' className='mr-3 h-4 w-3 fill-current'>
           <g fillRule='evenodd' stroke='none' strokeWidth={1}>
             <g transform='translate(-373 -208)'>
               <g transform='translate(155 191)'>
@@ -21,29 +35,40 @@ export const AsideFilter = () => {
         </svg>
         Tất cả danh mục
       </Link>
-      <div className='bg-gray-300 my-4 h-[1px]' />
+      <div className='my-4 h-[1px] bg-gray-300' />
       <ul>
-        <li className='py-2'>
-          <Link to={PATH.home} className='text-orange font-semibold relative px-2'>
-            <svg viewBox='0 0 4 7' className='w-2 h-2 fill-orange absolute top-1 '>
-              <polygon points='4 3.5 0 0 0 7' />
-            </svg>
-            <span className='ml-2'>Thời trang nam</span>
-          </Link>
-        </li>
-        <li className='py-2'>
-          <Link to={PATH.home} className='flex items-center px-2'>
-            <span className='ml-2'>Điện thoại</span>
-          </Link>
-        </li>
+        {categories.map((categoryItem) => {
+          const isActive = category === categoryItem._id
+          return (
+            <li className='py-2' key={categoryItem._id}>
+              <Link
+                to={{
+                  pathname: PATH.home,
+                  search: createSearchParams({
+                    ...queryConfig,
+                    category: categoryItem._id
+                  }).toString()
+                }}
+                className={classNames('relative px-2 ', { 'font-semibold text-orange': isActive })}
+              >
+                {isActive && (
+                  <svg viewBox='0 0 4 7' className='absolute top-1 h-2 w-2 fill-orange '>
+                    <polygon points='4 3.5 0 0 0 7' />
+                  </svg>
+                )}
+                <span className='ml-2'>{categoryItem.name}</span>
+              </Link>
+            </li>
+          )
+        })}
       </ul>
-      <Link to={PATH.home} className='flex items-center font-bold mt-4 uppercase'>
+      <Link to={PATH.home} className='mt-4 flex items-center font-bold uppercase'>
         <svg
           enableBackground='new 0 0 15 15'
           viewBox='0 0 15 15'
           x={0}
           y={0}
-          className='w-3 h-4 mr-3 fill-current stroke-current'
+          className='mr-3 h-4 w-3 fill-current stroke-current'
         >
           <g>
             <polyline
@@ -57,7 +82,7 @@ export const AsideFilter = () => {
         </svg>
         Bộ lọc tìm kiếm
       </Link>
-      <div className='bg-gray-300 my-4 h-[1px]' />
+      <div className='my-4 h-[1px] bg-gray-300' />
       <div className='my-5'>
         <div>Khoảng giá</div>
         <form className='mt-2'>
@@ -78,13 +103,13 @@ export const AsideFilter = () => {
               placeholder='₫ ĐẾN'
             />
           </div>
-          <Button className='p-2 uppercase w-full bg-orange text-white text-sm hover:bg-orange/80 flex justify-center items-center'>
+          <Button className='flex w-full items-center justify-center bg-orange p-2 text-sm uppercase text-white hover:bg-orange/80'>
             Áp dụng
           </Button>
         </form>
       </div>
 
-      <div className='bg-gray-300 my-4 h-[1px]' />
+      <div className='my-4 h-[1px] bg-gray-300' />
       <div className='text-sm'>Đánh giá</div>
       <div className='my-3'>
         <ul>
@@ -93,7 +118,7 @@ export const AsideFilter = () => {
               {Array(5)
                 .fill(0)
                 .map((_, index) => (
-                  <svg viewBox='0 0 9.5 8' className='w-4 h-4 mr-1' key={index}>
+                  <svg viewBox='0 0 9.5 8' className='mr-1 h-4 w-4' key={index}>
                     <defs>
                       <linearGradient id='ratingStarGradient' x1='50%' x2='50%' y1='0%' y2='100%'>
                         <stop offset={0} stopColor='#ffca11' />
@@ -125,7 +150,7 @@ export const AsideFilter = () => {
               {Array(4)
                 .fill(0)
                 .map((_, index) => (
-                  <svg viewBox='0 0 9.5 8' className='w-4 h-4 mr-1' key={index}>
+                  <svg viewBox='0 0 9.5 8' className='mr-1 h-4 w-4' key={index}>
                     <defs>
                       <linearGradient id='ratingStarGradient' x1='50%' x2='50%' y1='0%' y2='100%'>
                         <stop offset={0} stopColor='#ffca11' />
@@ -155,8 +180,8 @@ export const AsideFilter = () => {
             </Link>
           </li>
         </ul>
-        <div className='bg-gray-300 my-4 h-[1px]' />
-        <Button className='p-2 uppercase w-full bg-orange text-white text-sm hover:bg-orange/80 flex justify-center items-center'>
+        <div className='my-4 h-[1px] bg-gray-300' />
+        <Button className='flex w-full items-center justify-center bg-orange p-2 text-sm uppercase text-white hover:bg-orange/80'>
           Xóa tất cả
         </Button>
       </div>

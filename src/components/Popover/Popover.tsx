@@ -1,6 +1,6 @@
-import { useFloating, FloatingPortal, shift, arrow, offset, type Placement } from '@floating-ui/react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { useRef, useState, useId, type ElementType } from 'react'
+import { arrow, FloatingPortal, offset, shift, useFloating, type Placement } from '@floating-ui/react'
+import { AnimatePresence, motion } from 'framer-motion'
+import { useId, useRef, useState, type ElementType } from 'react'
 
 interface Props {
   children: React.ReactNode
@@ -58,7 +58,7 @@ export const Popover = ({
               {/* //border-x-transparent border-t-transparent border-b-white  */}
               <span
                 ref={arrowRef}
-                className='border-x-transparent border-t-transparent border-b-white border-[11px] absolute translate-y-[-95%] z-10'
+                className='absolute z-10 translate-y-[-95%] border-[11px] border-x-transparent border-t-transparent border-b-white'
                 style={{
                   left: middlewareData.arrow?.x,
                   top: middlewareData.arrow?.y
