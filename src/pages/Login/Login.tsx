@@ -1,19 +1,19 @@
-import { useForm } from 'react-hook-form'
-import { schema, Schema, isAxiosUnprocessableEntityError } from 'src/utils'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { Input } from 'src/components/Input'
 import { useMutation } from '@tanstack/react-query'
-import { authApi } from 'src/apis/auth.api'
-import { ErrorResponseApi } from 'src/types'
+import { useContext } from 'react'
+import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import { useContext } from 'react'
-import { AppContext } from 'src/contexts'
+import { authApi } from 'src/apis/auth.api'
 import { Button } from 'src/components'
+import { Input } from 'src/components/Input'
 import { PATH } from 'src/constants'
-type FormData = Omit<Schema, 'confirm_password'>
+import { AppContext } from 'src/contexts'
+import { ErrorResponseApi } from 'src/types'
+import { isAxiosUnprocessableEntityError, schema, Schema } from 'src/utils'
+type FormData = Pick<Schema, 'email' | 'password'>
 
-const loginSchema = schema.omit(['confirm_password'])
+const loginSchema = schema.pick(['email', 'password'])
 export const Login = () => {
   const { setIsAuthenticated, setProfile } = useContext(AppContext)
   const navigate = useNavigate()
@@ -58,9 +58,9 @@ export const Login = () => {
   return (
     <div className='bg-orange'>
       <div className='container'>
-        <div className='grid grid-cols-1 lg:grid-cols-5 py-12 lg:py-32 lg:pr-10'>
+        <div className='grid grid-cols-1 py-12 lg:grid-cols-5 lg:py-32 lg:pr-10'>
           <div className='lg:col-span-2 lg:col-start-4'>
-            <form className='p-10 rounded bg-white shadow-sm' onSubmit={handleSubmitFormLogin} noValidate>
+            <form className='rounded bg-white p-10 shadow-sm' onSubmit={handleSubmitFormLogin} noValidate>
               <div className='text-2xl'>Đăng Nhập</div>
 
               <Input
@@ -84,16 +84,16 @@ export const Login = () => {
 
               <div className='mt-3'>
                 <Button
-                  className='w-full text-center py-4 px-2 uppercase bg-red-500 text-white text-sm hover:bg-red-600'
+                  className='w-full bg-red-500 py-4 px-2 text-center text-sm uppercase text-white hover:bg-red-600'
                   isLoading={loginMutation.isLoading}
                   disabled={loginMutation.isLoading}
                 >
                   Đăng Nhập
                 </Button>
               </div>
-              <div className='flex items-center justify-center mt-8'>
+              <div className='mt-8 flex items-center justify-center'>
                 <span className='text-gray-400'>Bạn chưa có tài khoản?</span>
-                <Link className='text-red-400 ml-1' to={PATH.register}>
+                <Link className='ml-1 text-red-400' to={PATH.register}>
                   Đăng Ký
                 </Link>
               </div>

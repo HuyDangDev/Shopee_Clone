@@ -5,9 +5,9 @@ import { categoryApi } from 'src/apis/category.api'
 import { Pagination } from 'src/components'
 import { useQueryParams } from 'src/hooks/useQueryParams'
 import { ProductListConfig } from 'src/types'
-import { AsideFilter } from './AsideFilter'
-import { Product } from './Product'
-import { SortProductList } from './SortProductList'
+import { AsideFilter } from './components/AsideFilter'
+import { Product } from './components/Product'
+import { SortProductList } from './components/SortProductList'
 
 export type QueryConfig = {
   [key in keyof ProductListConfig]: string
