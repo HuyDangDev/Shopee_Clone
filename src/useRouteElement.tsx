@@ -1,9 +1,9 @@
-import { Navigate, useRoutes, Outlet } from 'react-router-dom'
-import { MainLayout, RegisterLayout } from 'src/layouts'
-import { Register, ProductList, Login, Profile } from 'src/pages'
 import { useContext } from 'react'
-import { AppContext } from './contexts'
+import { Navigate, Outlet, useRoutes } from 'react-router-dom'
+import { MainLayout, RegisterLayout } from 'src/layouts'
+import { Login, ProductDetail, ProductList, Profile, Register } from 'src/pages'
 import { PATH } from './constants'
+import { AppContext } from './contexts'
 
 function ProtectedRoute() {
   const { isAuthenticated } = useContext(AppContext)
@@ -23,6 +23,15 @@ export default function useRouteElement() {
       element: (
         <MainLayout>
           <ProductList />
+        </MainLayout>
+      )
+    },
+    {
+      path: PATH.productDetail,
+      index: true,
+      element: (
+        <MainLayout>
+          <ProductDetail />
         </MainLayout>
       )
     },

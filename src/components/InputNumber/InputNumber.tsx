@@ -18,7 +18,7 @@ export const InputNumber = forwardRef<HTMLInputElement, InputProps>(function Inp
   ref
 ) {
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = event.target
+    const { value = '1' } = event.target
     if ((/^\d+$/.test(value) || value === '') && onChange) {
       onChange(event)
     }

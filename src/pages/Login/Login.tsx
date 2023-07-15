@@ -10,7 +10,7 @@ import { Input } from 'src/components/Input'
 import { PATH } from 'src/constants'
 import { AppContext } from 'src/contexts'
 import { ErrorResponseApi } from 'src/types'
-import { isAxiosUnprocessableEntityError, schema, Schema } from 'src/utils'
+import { Schema, isAxiosUnprocessableEntityError, schema } from 'src/utils'
 type FormData = Pick<Schema, 'email' | 'password'>
 
 const loginSchema = schema.pick(['email', 'password'])
@@ -34,13 +34,13 @@ export const Login = () => {
     loginMutation.mutate(data, {
       onSuccess: (data) => {
         setIsAuthenticated(true)
-        setProfile(data.data?.data?.user)
+        setProfile(data?.data?.data?.user)
         toast.success('Login Success')
         navigate('/')
       },
       onError: (error) => {
         if (isAxiosUnprocessableEntityError<ErrorResponseApi<FormData>>(error)) {
-          const formError = error.response?.data.data
+          const formError = error.response?.data?.data
 
           if (formError) {
             Object.keys(formError).forEach((key) => {

@@ -11,7 +11,7 @@ import { Input } from 'src/components/Input'
 import { PATH } from 'src/constants'
 import { AppContext } from 'src/contexts'
 import { ErrorResponseApi } from 'src/types'
-import { schema, Schema } from 'src/utils/rules'
+import { Schema, schema } from 'src/utils/rules'
 import { isAxiosUnprocessableEntityError } from 'src/utils/utils'
 
 type FormData = Omit<Schema, 'price_min' | 'price_max'>
@@ -37,14 +37,14 @@ export const Register = () => {
     const body = omit(data, 'confirm_password')
     registerAccountMutation.mutate(body, {
       onSuccess: (data) => {
-        setProfile(data.data.data.user)
+        setProfile(data?.data?.data?.user)
         setIsAuthenticated(true)
         toast.success('Register Success')
         navigate('/')
       },
       onError: (error) => {
         if (isAxiosUnprocessableEntityError<ErrorResponseApi<FormData>>(error)) {
-          const formError = error.response?.data.data
+          const formError = error.response?.data?.data
 
           if (formError) {
             Object.keys(formError).forEach((key) => {
