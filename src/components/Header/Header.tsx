@@ -1,13 +1,23 @@
+import { yupResolver } from '@hookform/resolvers/yup'
 import { useMutation } from '@tanstack/react-query'
+import { omit } from 'lodash'
 import { useContext } from 'react'
-import { Link } from 'react-router-dom'
+import { useForm } from 'react-hook-form'
+import { Link, createSearchParams, useNavigate } from 'react-router-dom'
 import { authApi } from 'src/apis/auth.api'
 import { Popover } from 'src/components'
 import { PATH } from 'src/constants'
 import { AppContext } from 'src/contexts'
+import { useQueryConfig } from 'src/hooks/'
+import { Schema, schema } from 'src/utils'
+
+type FormData = Pick<Schema, 'name'>
+
+const nameSchema = schema.pick(['name'])
 
 export const Header = () => {
   const { setIsAuthenticated, isAuthenticated, profile, setProfile } = useContext(AppContext)
+  const queryConfig = useQueryConfig()
   const logoutMutation = useMutation({
     mutationFn: authApi.logout,
     onSuccess: () => {
@@ -15,10 +25,39 @@ export const Header = () => {
       setProfile(null)
     }
   })
+  const navigate = useNavigate()
+
+  const { register, handleSubmit } = useForm<FormData>({
+    defaultValues: {
+      name: ''
+    },
+    resolver: yupResolver(nameSchema)
+  })
 
   const handleLogout = () => {
     logoutMutation.mutate()
   }
+
+  const onSubmitSearch = handleSubmit((data) => {
+    const config = queryConfig.order
+      ? omit(
+          {
+            ...queryConfig,
+            name: data.name
+          },
+          ['order', 'sort_by']
+        )
+      : {
+          ...queryConfig,
+          name: data.name
+        }
+
+    return navigate({
+      pathname: PATH.home,
+      search: createSearchParams(config).toString()
+    })
+  })
+
   return (
     <div className='bg-[linear-gradient(-180deg,#f53d2d,#f63)] pb-5 pt-2 text-white'>
       <div className='container'>
@@ -118,9 +157,13 @@ export const Header = () => {
               </g>
             </svg>
           </Link>
-          <form className='col-span-9'>
+          <form className='col-span-9' onSubmit={onSubmitSearch}>
             <div className='flex rounded-sm bg-white p-1'>
-              <input type='text' className='flex-grow border-none bg-transparent px-3 py-2 text-black outline-none' />
+              <input
+                type='text'
+                className='flex-grow border-none bg-transparent px-3 py-2 text-black outline-none'
+                {...register('name')}
+              />
               <button className='flex-shrink-0 rounded-sm bg-orange py-2 px-6 hover:opacity-90'>
                 <svg
                   xmlns='http://www.w3.org/2000/svg'

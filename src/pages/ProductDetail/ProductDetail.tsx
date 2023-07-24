@@ -43,7 +43,6 @@ export const ProductDetail = () => {
     }
   }
 
-  console.log(currentIndexImage)
   const chooseActiveImage = (img: string) => {
     setActiveImage(img)
   }
@@ -214,6 +213,7 @@ export const ProductDetail = () => {
                       </svg>
                     </button>
                     <InputNumber
+                      value={1}
                       className=''
                       classNameError='hidden'
                       classNameInput='h-8 w-14 border-t border-b border-gray-300 p-1 text-center outline-none'

@@ -4,5 +4,5 @@ export const PATH = {
   login: '/login',
   register: '/register',
   logout: '/logout',
-  productDetail: ':nameId '
+  productDetail: ':nameId'
 }

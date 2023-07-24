@@ -40,10 +40,10 @@ class Http {
       (response) => {
         const { url } = response.config
         if (url === PATH.login || url === PATH.register) {
-          const responseData: AuthResponse = response.data
-          this.accessToken = responseData.data.access_token
+          const data = response.data as AuthResponse
+          this.accessToken = data.data.access_token
           setAccessTokenToLS(this.accessToken)
-          setProfileToLS(responseData.data.user)
+          setProfileToLS(data.data.user)
         }
         if (url === PATH.logout) {
           this.accessToken = ''
@@ -55,7 +55,7 @@ class Http {
         if (error.response?.status !== HttpStatusCode.UnprocessableEntity) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const data: any | undefined = error.response?.data
-          const message = data.message || error.message
+          const message = data?.message || error.message
           toast.error(message)
         }
         return Promise.reject(error)
