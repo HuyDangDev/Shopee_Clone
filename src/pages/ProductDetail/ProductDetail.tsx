@@ -1,13 +1,15 @@
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import DOMPurify from 'dompurify'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { productApi } from 'src/apis'
-import { ProductRating } from 'src/components'
-import { QuantityController } from 'src/components/QuantityController'
+import { toast } from 'react-toastify'
+import { productApi, purchaseApi } from 'src/apis'
+import { ProductRating, QuantityController } from 'src/components'
+import { purchasesStatus } from 'src/constants'
 import { ProductListConfig, ProductType } from 'src/types'
 import { formatCurrency, formatCurrencySocialStyle, getIdFromNameId, rateSale } from 'src/utils'
 import { Product } from '../ProductList/components'
+
 export const ProductDetail = () => {
   const { nameId } = useParams()
 
@@ -20,6 +22,7 @@ export const ProductDetail = () => {
     }
   })
   const [buyCount, setBuyCount] = useState(1)
+  const queryClient = useQueryClient()
   const [currentIndexImage, setCurrentIndexImage] = useState([0, 5])
   const [activeImage, setActiveImage] = useState('')
   const product = productDetailData && productDetailData?.data?.data
@@ -38,6 +41,8 @@ export const ProductDetail = () => {
     enabled: Boolean(product),
     staleTime: 3 * 60 * 1000
   })
+
+  const addToCartMutation = useMutation(purchaseApi.addToCart)
 
   useEffect(() => {
     if (product && product.images.length > 0) {
@@ -85,6 +90,18 @@ export const ProductDetail = () => {
 
   const handleBuyCount = (value: number) => {
     setBuyCount(value)
+  }
+
+  const addToCart = () => {
+    addToCartMutation.mutate(
+      { buy_count: buyCount, product_id: product?._id as string },
+      {
+        onSuccess: (data) => {
+          toast.success(data.data.message, { autoClose: 2000 })
+          queryClient.invalidateQueries({ queryKey: ['purchases', { status: purchasesStatus.inCart }] })
+        }
+      }
+    )
   }
 
   if (!product) return null
@@ -260,7 +277,10 @@ export const ProductDetail = () => {
                   </div>
 
                   <div className='mt-8 ml-8 flex items-center'>
-                    <button className='hover:bg-orange/2 flex h-12 items-center rounded-sm border-[1px] border-orange px-5 py-1'>
+                    <button
+                      onClick={addToCart}
+                      className='hover:bg-orange/2 flex h-12 items-center rounded-sm border-[1px] border-orange px-5 py-1'
+                    >
                       <svg
                         enableBackground='new 0 0 15 15'
                         viewBox='0 0 15 15'
