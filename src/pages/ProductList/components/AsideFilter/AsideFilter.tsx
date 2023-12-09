@@ -1,27 +1,28 @@
-import { yupResolver } from '@hookform/resolvers/yup'
-import classNames from 'classnames'
-import { omit } from 'lodash'
-import { Controller, useForm } from 'react-hook-form'
-import { Link, createSearchParams, useNavigate } from 'react-router-dom'
-import { Button } from 'src/components'
-import { InputNumber } from 'src/components/InputNumber'
-import { PATH } from 'src/constants'
-import { QueryConfig } from 'src/hooks/'
-import { Category, NoUndefinedField } from 'src/types'
-import { Schema, schema } from 'src/utils'
-import { RatingStar } from '../RatingStar'
+import { yupResolver } from '@hookform/resolvers/yup';
+import classNames from 'classnames';
+import { omit } from 'lodash';
+import { Controller, useForm } from 'react-hook-form';
+import { Link, createSearchParams, useNavigate } from 'react-router-dom';
+import { Button } from 'src/components';
+import { InputNumber } from 'src/components/InputNumber';
+import { PATH } from 'src/constants';
+import { QueryConfig } from 'src/hooks/';
+import { Category, NoUndefinedField } from 'src/types';
+import { Schema, schema } from 'src/utils';
+
+import { RatingStar } from '../RatingStar';
 
 interface AsideFilterProps {
-  categories: Category[]
-  queryConfig: QueryConfig
+  categories: Category[];
+  queryConfig: QueryConfig;
 }
 
-type FormDataAside = NoUndefinedField<Pick<Schema, 'price_min' | 'price_max'>>
+type FormDataAside = NoUndefinedField<Pick<Schema, 'price_min' | 'price_max'>>;
 
-const priceSchema = schema.pick(['price_min', 'price_max'])
+const priceSchema = schema.pick(['price_min', 'price_max']);
 
 export const AsideFilter = ({ categories, queryConfig }: AsideFilterProps) => {
-  const { category } = queryConfig
+  const { category } = queryConfig;
   const {
     control,
     handleSubmit,
@@ -35,9 +36,9 @@ export const AsideFilter = ({ categories, queryConfig }: AsideFilterProps) => {
 
     resolver: yupResolver(priceSchema),
     shouldFocusError: true
-  })
+  });
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const onSubmit = handleSubmit((data) => {
     navigate({
@@ -47,16 +48,16 @@ export const AsideFilter = ({ categories, queryConfig }: AsideFilterProps) => {
         price_max: data.price_max,
         price_min: data.price_min
       }).toString()
-    })
-  })
+    });
+  });
 
   const handleRemoveAll = () => {
-    reset()
+    reset();
     navigate({
       pathname: PATH.home,
       search: createSearchParams(omit(queryConfig, ['category', 'price_max', 'price_min', 'rating_filter'])).toString()
-    })
-  }
+    });
+  };
 
   return (
     <div className='py-4'>
@@ -84,7 +85,7 @@ export const AsideFilter = ({ categories, queryConfig }: AsideFilterProps) => {
       <div className='my-4 h-[1px] bg-gray-300' />
       <ul>
         {categories.map((categoryItem) => {
-          const isActive = category === categoryItem._id
+          const isActive = category === categoryItem._id;
           return (
             <li className='py-2' key={categoryItem._id}>
               <Link
@@ -105,7 +106,7 @@ export const AsideFilter = ({ categories, queryConfig }: AsideFilterProps) => {
                 <span className='ml-2'>{categoryItem.name}</span>
               </Link>
             </li>
-          )
+          );
         })}
       </ul>
       <Link to={PATH.home} className='mt-4 flex items-center font-bold uppercase'>
@@ -142,13 +143,22 @@ export const AsideFilter = ({ categories, queryConfig }: AsideFilterProps) => {
                     type='text'
                     className='grow'
                     classNameInput='p-1 w-full outline-none border border-gray-300 focus:border-gray-500 rounded-sm focus:shadow-sm'
-                    placeholder='₫ TỪ'
+                    placeholder='₫ Từ'
                     classNameError='hidden'
                     {...field}
                   />
-                )
+                );
               }}
             />
+            {/* <InputV2
+              name='price_max'
+              control={control}
+              type='text'
+              className='grow'
+              classNameInput='p-1 w-full outline-none border border-gray-300 focus:border-gray-500 rounded-sm focus:shadow-sm'
+              placeholder='₫ Từ'
+              classNameError='hidden'
+            /> */}
             <div className='mx-2 mt-2 shrink-0 text-center'>-</div>
             <Controller
               control={control}
@@ -163,7 +173,7 @@ export const AsideFilter = ({ categories, queryConfig }: AsideFilterProps) => {
                     placeholder='₫ ĐẾN'
                     {...field}
                   />
-                )
+                );
               }}
             />
           </div>
@@ -187,5 +197,5 @@ export const AsideFilter = ({ categories, queryConfig }: AsideFilterProps) => {
         </Button>
       </div>
     </div>
-  )
-}
+  );
+};

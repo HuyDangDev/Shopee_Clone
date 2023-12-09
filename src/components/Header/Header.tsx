@@ -1,53 +1,54 @@
-import { yupResolver } from '@hookform/resolvers/yup'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import { omit } from 'lodash'
-import { useContext } from 'react'
-import { useForm } from 'react-hook-form'
-import { Link, createSearchParams, useNavigate } from 'react-router-dom'
-import { authApi, purchaseApi } from 'src/apis'
-import noProduct from 'src/assets/images/no-product.png'
-import { Popover } from 'src/components'
-import { PATH, purchasesStatus } from 'src/constants'
-import { AppContext } from 'src/contexts'
-import { useQueryConfig } from 'src/hooks/'
-import { PurchaseListStatus } from 'src/types'
-import { Schema, formatCurrency, schema } from 'src/utils'
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { omit } from 'lodash';
+import { useContext } from 'react';
+import { useForm } from 'react-hook-form';
+import { Link, createSearchParams, useNavigate } from 'react-router-dom';
+import { authApi, purchaseApi } from 'src/apis';
+import noProduct from 'src/assets/images/no-product.png';
+import { Popover } from 'src/components';
+import { PATH, purchasesStatus } from 'src/constants';
+import { AppContext } from 'src/contexts';
+import { useQueryConfig } from 'src/hooks/';
+import { queryClient } from 'src/main';
+import { Schema, formatCurrency, schema } from 'src/utils';
 
-type FormData = Pick<Schema, 'name'>
-const MAX_PURCHASES = 5
+type FormData = Pick<Schema, 'name'>;
+const MAX_PURCHASES = 5;
 
-const nameSchema = schema.pick(['name'])
+const nameSchema = schema.pick(['name']);
 
 export const Header = () => {
-  const { setIsAuthenticated, isAuthenticated, profile, setProfile } = useContext(AppContext)
-  const queryConfig = useQueryConfig()
+  const { setIsAuthenticated, isAuthenticated, profile, setProfile } = useContext(AppContext);
+  const queryConfig = useQueryConfig();
   const logoutMutation = useMutation({
     mutationFn: authApi.logout,
     onSuccess: () => {
-      setIsAuthenticated(false)
-      setProfile(null)
+      setIsAuthenticated(false);
+      setProfile(null);
+      queryClient.removeQueries({ queryKey: ['purchases', { status: purchasesStatus.inCart }] });
     }
-  })
+  });
 
   const { data: purchaseInCartData } = useQuery({
     queryKey: ['purchases', { status: purchasesStatus.inCart }],
-    queryFn: () => purchaseApi.getPurchases({ status: purchasesStatus.inCart as PurchaseListStatus })
-  })
+    queryFn: () => purchaseApi.getPurchases({ status: purchasesStatus.inCart }),
+    enabled: isAuthenticated
+  });
+  const purchaseInCart = purchaseInCartData && purchaseInCartData.data.data;
 
-  const purchaseInCart = purchaseInCartData?.data?.data
-
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const { register, handleSubmit } = useForm<FormData>({
     defaultValues: {
       name: ''
     },
     resolver: yupResolver(nameSchema)
-  })
+  });
 
   const handleLogout = () => {
-    logoutMutation.mutate()
-  }
+    logoutMutation.mutate();
+  };
 
   const onSubmitSearch = handleSubmit((data) => {
     const config = queryConfig.order
@@ -61,13 +62,13 @@ export const Header = () => {
       : {
           ...queryConfig,
           name: data.name
-        }
+        };
 
     return navigate({
       pathname: PATH.home,
       search: createSearchParams(config).toString()
-    })
-  })
+    });
+  });
 
   return (
     <div className='bg-[linear-gradient(-180deg,#f53d2d,#f63)] pb-5 pt-2 text-white'>
@@ -225,9 +226,12 @@ export const Header = () => {
                           {purchaseInCart.length > MAX_PURCHASES ? purchaseInCart.length - MAX_PURCHASES : ''} Thêm hàng
                           vào giỏ
                         </div>
-                        <button className='rounded-sm bg-orange px-4 py-2 capitalize text-white hover:bg-opacity-90'>
+                        <Link
+                          to={PATH.cart}
+                          className='rounded-sm bg-orange px-4 py-2 capitalize text-white hover:bg-opacity-90'
+                        >
                           Xem giỏ hàng
-                        </button>
+                        </Link>
                       </div>
                     </div>
                   ) : (
@@ -254,14 +258,20 @@ export const Header = () => {
                     d='M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z'
                   />
                 </svg>
-                <span className='absolute top-[-5px] left-[17px] rounded-full bg-white px-[9px] py-[1px] text-sm text-black'>
-                  {purchaseInCart ? purchaseInCart.length : ''}
-                </span>
+                {purchaseInCart && (
+                  <span className='absolute top-[-5px] left-[17px] rounded-full bg-white px-[9px] py-[1px] text-sm text-black'>
+                    {purchaseInCart?.length}
+                  </span>
+                )}
               </Link>
             </Popover>
           </div>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
+
+// export const Header = () => {
+//   return <div>Header</div>;
+// };

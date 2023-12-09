@@ -1,110 +1,110 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import DOMPurify from 'dompurify'
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { useParams } from 'react-router-dom'
-import { toast } from 'react-toastify'
-import { productApi, purchaseApi } from 'src/apis'
-import { ProductRating, QuantityController } from 'src/components'
-import { purchasesStatus } from 'src/constants'
-import { ProductListConfig, ProductType } from 'src/types'
-import { formatCurrency, formatCurrencySocialStyle, getIdFromNameId, rateSale } from 'src/utils'
-import { Product } from '../ProductList/components'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import DOMPurify from 'dompurify';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { productApi, purchaseApi } from 'src/apis';
+import { ProductRating, QuantityController } from 'src/components';
+import { purchasesStatus } from 'src/constants';
+import { ProductListConfig, ProductType } from 'src/types';
+import { formatCurrency, formatCurrencySocialStyle, getIdFromNameId, rateSale } from 'src/utils';
+import { Product } from '../ProductList/components';
 
 export const ProductDetail = () => {
-  const { nameId } = useParams()
+  const { nameId } = useParams();
 
-  const id = getIdFromNameId(nameId as string)
+  const id = getIdFromNameId(nameId as string);
 
   const { data: productDetailData } = useQuery({
     queryKey: ['productDetail', id],
     queryFn: () => {
-      return productApi.getProductDetail(id as string)
+      return productApi.getProductDetail(id as string);
     }
-  })
-  const [buyCount, setBuyCount] = useState(1)
-  const queryClient = useQueryClient()
-  const [currentIndexImage, setCurrentIndexImage] = useState([0, 5])
-  const [activeImage, setActiveImage] = useState('')
-  const product = productDetailData && productDetailData?.data?.data
-  const imageRef = useRef<HTMLImageElement>(null)
+  });
+  const [buyCount, setBuyCount] = useState(1);
+  const queryClient = useQueryClient();
+  const [currentIndexImage, setCurrentIndexImage] = useState([0, 5]);
+  const [activeImage, setActiveImage] = useState('');
+  const product = productDetailData && productDetailData?.data?.data;
+  const imageRef = useRef<HTMLImageElement>(null);
   const currentImages = useMemo(
     () => (product ? product.images.slice(...currentIndexImage) : []),
     [currentIndexImage, product]
-  )
+  );
 
-  const queryConfig: ProductListConfig = { limit: '20', category: product?.category._id, page: '1' }
+  const queryConfig: ProductListConfig = { limit: '20', category: product?.category._id, page: '1' };
   const { data: ProductData } = useQuery({
     queryKey: ['products', queryConfig],
     queryFn: () => {
-      return productApi.getProducts(queryConfig)
+      return productApi.getProducts(queryConfig);
     },
     enabled: Boolean(product),
     staleTime: 3 * 60 * 1000
-  })
+  });
 
-  const addToCartMutation = useMutation(purchaseApi.addToCart)
+  const addToCartMutation = useMutation(purchaseApi.addToCart);
 
   useEffect(() => {
     if (product && product.images.length > 0) {
-      setActiveImage(product.images[0])
+      setActiveImage(product.images[0]);
     }
-  }, [product])
+  }, [product]);
 
   const next = () => {
     if (currentIndexImage[1] < (product as ProductType).images.length) {
-      setCurrentIndexImage((prev) => [prev[0] + 1, prev[1] + 1])
+      setCurrentIndexImage((prev) => [prev[0] + 1, prev[1] + 1]);
     }
-  }
+  };
 
   const prev = () => {
     if (currentIndexImage[0] > 0) {
-      setCurrentIndexImage((prev) => [prev[0] - 1, prev[1] - 1])
+      setCurrentIndexImage((prev) => [prev[0] - 1, prev[1] - 1]);
     }
-  }
+  };
 
   const chooseActiveImage = (img: string) => {
-    setActiveImage(img)
-  }
+    setActiveImage(img);
+  };
 
   const handleZoom = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    const rect = event.currentTarget.getBoundingClientRect()
+    const rect = event.currentTarget.getBoundingClientRect();
 
-    const image = imageRef.current as HTMLImageElement
-    const { naturalHeight, naturalWidth } = image
-    image.style.height = naturalHeight + 'px'
-    image.style.width = naturalWidth + 'px'
-    image.style.maxWidth = 'unset'
+    const image = imageRef.current as HTMLImageElement;
+    const { naturalHeight, naturalWidth } = image;
+    image.style.height = naturalHeight + 'px';
+    image.style.width = naturalWidth + 'px';
+    image.style.maxWidth = 'unset';
 
-    const { offsetX, offsetY } = event.nativeEvent
+    const { offsetX, offsetY } = event.nativeEvent;
 
-    const top = offsetY * (1 - naturalHeight / rect.height)
-    const left = offsetX * (1 - naturalWidth / rect.width)
+    const top = offsetY * (1 - naturalHeight / rect.height);
+    const left = offsetX * (1 - naturalWidth / rect.width);
 
-    image.style.top = top + 'px'
-    image.style.left = left + 'px'
-  }
+    image.style.top = top + 'px';
+    image.style.left = left + 'px';
+  };
 
   const handleRemoveZoom = () => {
-    imageRef.current?.removeAttribute('style')
-  }
+    imageRef.current?.removeAttribute('style');
+  };
 
   const handleBuyCount = (value: number) => {
-    setBuyCount(value)
-  }
+    setBuyCount(value);
+  };
 
   const addToCart = () => {
     addToCartMutation.mutate(
       { buy_count: buyCount, product_id: product?._id as string },
       {
         onSuccess: (data) => {
-          toast.success(data.data.message, { autoClose: 2000 })
-          queryClient.invalidateQueries({ queryKey: ['purchases', { status: purchasesStatus.inCart }] })
+          toast.success(data.data.message, { autoClose: 2000 });
+          queryClient.invalidateQueries({ queryKey: ['purchases', { status: purchasesStatus.inCart }] });
         }
       }
-    )
-  }
+    );
+  };
 
-  if (!product) return null
+  if (!product) return null;
   return (
     <div className='bg-gray-200 py-6'>
       <div className='mt-5'>
@@ -142,7 +142,7 @@ export const ProductDetail = () => {
                       </svg>
                     </button>
                     {currentImages.map((img) => {
-                      const isActive = img === activeImage
+                      const isActive = img === activeImage;
                       return (
                         <div
                           className='relative w-full pt-[100%]'
@@ -156,7 +156,7 @@ export const ProductDetail = () => {
                           />
                           {isActive && <div className='absolute inset-0 border-2 border-orange'></div>}
                         </div>
-                      )
+                      );
                     })}
                     <button
                       className='absolute right-0 top-1/2 z-10 h-9 w-5 -translate-y-1/2 bg-black text-white opacity-20'
@@ -366,5 +366,5 @@ export const ProductDetail = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};

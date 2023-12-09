@@ -1,60 +1,60 @@
-import classNames from 'classnames'
-import { createSearchParams, Link } from 'react-router-dom'
-import { PATH } from 'src/constants'
-import { QueryConfig } from 'src/pages'
+import classNames from 'classnames';
+import { createSearchParams, Link } from 'react-router-dom';
+import { PATH } from 'src/constants';
+import { QueryConfig } from 'src/pages';
 
 interface PaginationProps {
-  queryConfig: QueryConfig
-  pageSize: number
+  queryConfig: QueryConfig;
+  pageSize: number;
 }
 
-const RANGE = 2
+const RANGE = 2;
 export const Pagination = ({ queryConfig, pageSize }: PaginationProps) => {
-  const currentPage = Number(queryConfig.page)
+  const currentPage = Number(queryConfig.page);
   const renderPagination = () => {
-    let dotAfter = false
-    let dotBefore = false
+    let dotAfter = false;
+    let dotBefore = false;
     const renderDotAfter = (index: number) => {
       if (!dotAfter) {
-        dotAfter = true
+        dotAfter = true;
         return (
           <span key={index} className='mx-2  rounded border bg-white py-2 px-3 shadow-sm'>
             ...
           </span>
-        )
+        );
       }
-      return null
-    }
+      return null;
+    };
 
     const renderDotBefore = (index: number) => {
       if (!dotBefore) {
-        dotBefore = true
+        dotBefore = true;
         return (
           <span key={index} className='mx-2  rounded border bg-white  py-2 px-3 shadow-sm'>
             ...
           </span>
-        )
+        );
       }
-      return null
-    }
+      return null;
+    };
     return Array(pageSize)
       .fill(0)
       .map((_, index) => {
-        const pageNumber = index + 1
+        const pageNumber = index + 1;
         if (currentPage <= RANGE * 2 + 1 && pageNumber > currentPage + RANGE && pageNumber < pageSize - RANGE + 1) {
-          return renderDotAfter(index)
+          return renderDotAfter(index);
         }
         if (currentPage > RANGE * 2 + 1 && currentPage < pageSize - RANGE * 2) {
           if (pageNumber < currentPage - RANGE && pageNumber > RANGE) {
-            return renderDotBefore(index)
+            return renderDotBefore(index);
           }
           if (pageNumber > currentPage + RANGE && pageNumber < pageSize - RANGE + 1) {
-            return renderDotAfter(index)
+            return renderDotAfter(index);
           }
         }
 
         if (currentPage >= pageSize - RANGE * 2 && pageNumber <= currentPage - RANGE && pageNumber > RANGE) {
-          return renderDotBefore(index)
+          return renderDotBefore(index);
         }
 
         return (
@@ -74,9 +74,9 @@ export const Pagination = ({ queryConfig, pageSize }: PaginationProps) => {
           >
             {pageNumber}
           </Link>
-        )
-      })
-  }
+        );
+      });
+  };
   return (
     <div className='mt-6 flex flex-wrap justify-center'>
       {currentPage === 1 ? (
@@ -114,5 +114,5 @@ export const Pagination = ({ queryConfig, pageSize }: PaginationProps) => {
         </Link>
       )}
     </div>
-  )
-}
+  );
+};

@@ -1,69 +1,69 @@
-import axios, { AxiosError, HttpStatusCode, type AxiosInstance } from 'axios'
-import { toast } from 'react-toastify'
-import { PATH } from 'src/constants'
-import { AuthResponse } from 'src/types'
+import axios, { AxiosError, HttpStatusCode, type AxiosInstance } from 'axios';
+import { toast } from 'react-toastify';
+import { PATH } from 'src/constants';
+import { AuthResponse } from 'src/types';
 
 import {
   clearAccountInfoFromLS,
   getAccessTokenFromLS,
   saveAccessTokenToLS as setAccessTokenToLS,
   setProfile as setProfileToLS
-} from './auth'
+} from './auth';
 
 class Http {
-  instance: AxiosInstance
-  private accessToken: string
+  instance: AxiosInstance;
+  private accessToken: string;
 
   constructor() {
-    this.accessToken = getAccessTokenFromLS() ?? ''
+    this.accessToken = getAccessTokenFromLS() ?? '';
     this.instance = axios.create({
       baseURL: 'https://api-ecom.duthanhduoc.com/',
       timeout: 10000,
       headers: {
         'Content-Type': 'application/json'
       }
-    })
+    });
 
     this.instance.interceptors.request.use(
       (config) => {
         if (this.accessToken && config.headers) {
-          config.headers.authorization = this.accessToken
-          return config
+          config.headers.authorization = this.accessToken;
+          return config;
         }
-        return config
+        return config;
       },
       (error: AxiosError) => {
-        Promise.reject(error)
+        Promise.reject(error);
       }
-    )
+    );
     this.instance.interceptors.response.use(
       (response) => {
-        const { url } = response.config
+        const { url } = response.config;
         if (url === PATH.login || url === PATH.register) {
-          const data = response.data as AuthResponse
-          this.accessToken = data.data.access_token
-          setAccessTokenToLS(this.accessToken)
-          setProfileToLS(data.data.user)
+          const data = response.data as AuthResponse;
+          this.accessToken = data.data.access_token;
+          setAccessTokenToLS(this.accessToken);
+          setProfileToLS(data.data.user);
         }
         if (url === PATH.logout) {
-          this.accessToken = ''
-          clearAccountInfoFromLS()
+          this.accessToken = '';
+          clearAccountInfoFromLS();
         }
-        return response
+        return response;
       },
       function (error: AxiosError) {
         if (error.response?.status !== HttpStatusCode.UnprocessableEntity) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const data: any | undefined = error.response?.data
-          const message = data?.message || error.message
-          toast.error(message)
+          const data: any | undefined = error.response?.data;
+          const message = data?.message || error.message;
+          toast.error(message);
         }
-        return Promise.reject(error)
+        return Promise.reject(error);
       }
-    )
+    );
   }
 }
 
-const http = new Http().instance
+const http = new Http().instance;
 
-export default http
+export default http;

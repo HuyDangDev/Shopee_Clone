@@ -1,18 +1,19 @@
-import { useContext } from 'react'
-import { Navigate, Outlet, useRoutes } from 'react-router-dom'
-import { MainLayout, RegisterLayout } from 'src/layouts'
-import { Login, ProductDetail, ProductList, Profile, Register } from 'src/pages'
-import { PATH } from './constants'
-import { AppContext } from './contexts'
+import { useContext } from 'react';
+import { Navigate, Outlet, useRoutes } from 'react-router-dom';
+import { MainLayout, RegisterLayout } from 'src/layouts';
+import { Login, ProductDetail, ProductList, Profile, Register } from 'src/pages';
+import { PATH } from './constants';
+import { AppContext } from './contexts';
+import { Cart } from './pages/Cart/Cart';
 
 function ProtectedRoute() {
-  const { isAuthenticated } = useContext(AppContext)
-  return isAuthenticated ? <Outlet /> : <Navigate to={PATH.login} />
+  const { isAuthenticated } = useContext(AppContext);
+  return isAuthenticated ? <Outlet /> : <Navigate to={PATH.login} />;
 }
 
 function RejectedRoute() {
-  const { isAuthenticated } = useContext(AppContext)
-  return !isAuthenticated ? <Outlet /> : <Navigate to={PATH.home} />
+  const { isAuthenticated } = useContext(AppContext);
+  return !isAuthenticated ? <Outlet /> : <Navigate to={PATH.home} />;
 }
 
 export default function useRouteElement() {
@@ -46,6 +47,14 @@ export default function useRouteElement() {
               <Profile />
             </MainLayout>
           )
+        },
+        {
+          path: PATH.cart,
+          element: (
+            <MainLayout>
+              <Cart />
+            </MainLayout>
+          )
         }
       ]
     },
@@ -71,6 +80,6 @@ export default function useRouteElement() {
         }
       ]
     }
-  ])
-  return routeElements
+  ]);
+  return routeElements;
 }
